@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>筋肉育成DX ～マッスル·オデッセイ 500の神話～</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&family=Zen+Maru+Gothic:wght=500;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#15111a;
+  --panel:#241b2c;
+  --panel2:#2f2338;
+  --accent:#ff7a45;
+  --accent2:#ff2e63;
+  --gold:#ffd23f;
+  --muted:#a99bb0;
+  --good:#5ee6a0;
+  --burst:#ff4500;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:radial-gradient(ellipse at top,#241832,#15111a 60%);
+  color:#fff;
+  font-family:"Zen Maru Gothic",sans-serif;
+  text-align:center;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  padding:4px 6px;
+  transition: background 0.3s;
+}
+body.burst-mode {
+  background: radial-gradient(ellipse at top,#4a1204,#1a0500 60%) !important;
+}
+#wrap{max-width:520px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:4px;flex:1;min-height:0}
+h1{
+  font-family:"RocknRoll One",sans-serif;
+  font-size:1.1em;
+  margin:2px 0;
+  letter-spacing:.5px;
+  background:linear-gradient(90deg,var(--gold),var(--accent),var(--accent2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  display:inline;
+}
+#headerRow{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+#titleTag{
+  display:inline-block;
+  font-family:"RocknRoll One",sans-serif;
+  background:var(--panel2);
+  border:1px solid var(--accent);
+  color:var(--gold);
+  padding:1px 8px;
+  border-radius:20px;
+  font-size:.62em;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#statbar{
+  display:flex;
+  justify-content:space-between;
+  background:var(--panel);
+  padding:4px 6px;
+  border-radius:10px;
+  font-size:.75em;
+  gap: 2px;
+}
+#statbar > div{flex:1;min-width:0;}
+#statbar span.label{color:var(--muted);font-size:.68em;display:block;line-height:1.1;white-space:nowrap;}
+button{
+  font-family:"RocknRoll One",sans-serif;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  transition:transform .08s;
+}
+button:active{transform:scale(.93)}
+#trainArea{position:relative}
+#squatBtn{
+  width:100%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  font-size:1.05em;
+  padding:10px;
+  box-shadow:0 3px 0 #8a1436,0 5px 10px rgba(255,46,99,.3);
+}
+#squatBtn.bursting {
+  background: linear-gradient(135deg, var(--gold), var(--burst)) !important;
+  box-shadow: 0 3px 0 #b33000, 0 5px 15px rgba(255,69,0,0.6) !important;
+  animation: pulse 0.2s infinite alternate;
+}
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.02); } }
+#squatBtn.punch{animation:punch .12s ease}
+@keyframes punch{0%{transform:scale(1)}50%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1)}}
+.secondary{background:var(--panel2);color:var(--gold);border:1px solid var(--accent);font-size:.75em;padding:4px 6px}
+.popup{
+  position:absolute;
+  font-family:"RocknRoll One",sans-serif;
+  font-weight:700;
+  color:var(--gold);
+  pointer-events:none;
+  animation:floatUp .8s ease-out forwards;
+  font-size:.95em;
+  text-shadow:0 0 5px rgba(0,0,0,.6);
+}
+.popup.burst-pop { color: #ff3300; font-size: 1.3em; text-shadow: 0 0 8px var(--gold); }
+@keyframes floatUp{ 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-40px) scale(1.2)} }
+
+.rowCard{
+  background:var(--panel);
+  border:1px solid #4a2f55;border-radius:10px;padding:6px 8px;
+  display:flex;align-items:center;gap:6px;text-align:left;
+}
+.rowCard .info{flex:1;min-width:0}
+.rowCard .btns{display:flex;flex-direction:column;gap:3px}
+#bossName{font-family:"RocknRoll One",sans-serif;color:var(--accent2);font-size:.82em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bossFlavor{color:var(--muted);font-size:.65em;margin:1px 0 2px}
+#bossBarOuter{background:#3a2a44;border-radius:6px;height:7px;overflow:hidden}
+#bossBarInner{background:linear-gradient(90deg,var(--accent2),var(--accent));height:100%;width:0%;transition:width .3s}
+#flash{
+  position:fixed;top:38%;left:50%;transform:translate(-50%,-50%) scale(.5);
+  font-family:"RocknRoll One",sans-serif;font-size:2em;color:var(--gold);
+  text-shadow:0 0 20px #000,0 0 10px var(--accent2);
+  opacity:0;pointer-events:none;z-index:50;
+}
+#flash.show{animation:flashIn 1s ease-out forwards}
+@keyframes flashIn{ 0%{opacity:0;transform:translate(-50%,-50%) scale(.3)} 15%{opacity:1;transform:translate(-50%,-50%) scale(1.1)} 80%{opacity:1} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.3)} }
+.shake{animation:shake .35s}
+@keyframes shake{ 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} }
+#gachaCard .info{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
+#gachaCard h3{margin:0;font-size:.82em}
+#gachaBookEl{font-size:.7em;line-height:1.4;max-height:32px;overflow-y:auto;flex-basis:100%}
+.bookItem{display:inline-block;background:var(--panel2);border-radius:6px;padding:0 4px;margin:1px;font-size:.9em;border:1px solid #3a2a44;}
+.g-n{color:var(--muted);border-color:#4a4050}
+.g-r{color:#8fd0ff;border-color:#3a6a8f}
+.g-sr{color:var(--gold);border-color:#8f7a2a}
+.g-ssr{color:var(--accent2);border-color:var(--accent2);box-shadow:0 0 6px rgba(255,46,99,.4)}
+.g-ur{color:#e066ff;border-color:#e066ff;box-shadow:0 0 10px rgba(224,102,255,0.6);font-weight:900}
+#gachaBtn:disabled, #gacha10Btn:disabled{opacity:.4;cursor:not-allowed}
+h3.sect{font-family:"RocknRoll One",sans-serif;color:var(--muted);font-size:.72em;margin:1px 0;text-align:left}
+#shopWrap{min-height:0}
+#shops{display:flex;overflow-x:auto;flex-wrap:nowrap;gap:5px;padding-bottom:2px}
+.card{flex:0 0 auto;background:var(--panel);border:1px solid #3a2a44;padding:5px;border-radius:8px;width:80px;font-size:.65em;}
+.card .iname{font-weight:700;min-height:2.2em;display:flex;align-items:center;justify-content:center;font-size:.9em}
+.card .idesc{color:var(--muted);font-size:.8em;min-height:2em;overflow:hidden;}
+.card button{width:100%;margin:2px 0 0;padding:2px;font-size:.8em;background:var(--panel2);color:var(--gold);border:1px solid var(--accent);}
+.card button.afford{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none}
+#logWrap{flex:1;min-height:0;display:flex;flex-direction:column}
+#log{flex:1;min-height:0;overflow-y:auto;padding:3px 6px;background:var(--panel);border:1px solid #3a2a44;border-radius:8px;text-align:left;font-size:.7em;}
+.logline{padding:1px 3px;border-radius:4px;margin:1px 0}
+.l-crit{background:rgba(255,122,69,.15);color:var(--accent)}
+.l-event{background:rgba(255,46,99,.12);color:#ff8fae}
+.l-levelup{background:rgba(255,210,63,.15);color:var(--gold)}
+.l-boss{background:rgba(255,46,99,.2);color:#fff}
+.l-fail{background:rgba(120,120,120,.15);color:var(--muted)}
+.l-reborn{background:rgba(94,230,160,.15);color:var(--good)}
+.l-burst{background:rgba(255,69,0,0.25);color:#ff4500;font-weight:bold}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.skill-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;margin-top:2px;}
+.skill-btn{padding:4px 2px;font-size:0.62em;background:#332244;color:#fff;border:1px solid #553377;border-radius:6px;position:relative;}
+.skill-btn:disabled{opacity:0.6;color:var(--muted);cursor:not-allowed;}
+.skill-btn .cd-overlay{position:absolute;top:0;left:0;height:100%;width:0%;background:rgba(0,0,0,0.5);border-radius:6px;transition:width 0.1s linear;}
+.drop-badge{display:inline-block;font-size:0.58em;background:#441155;border:1px solid #e066ff;padding:1px 4px;border-radius:4px;margin-top:1px;}
+footer{color:var(--muted);font-size:.58em;margin:1px 0 0;display:flex;justify-content:space-between;align-items:center;}
+.clear-btn{background:none;border:none;color:#ff2e63;font-size:1em;cursor:pointer;padding:0;}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+<div id="headerRow">
+  <h1>💪 筋肉育成DX</h1>
+  <div id="titleTag">称号：<span id="titleText">無の極み</span></div>
+</div>
+
+<div id="statbar">
+  <div><span class="label">筋力</span><span id="p">0</span></div>
+  <div><span class="label">Lv</span><span id="l">1</span></div>
+  <div><span class="label">クリック</span><span id="clPowerDisplay" style="color:var(--gold);font-weight:bold;">1</span></div>
+  <div><span class="label">毎秒</span><span id="s">0</span></div>
+  <div><span class="label">💎</span><span id="g">0</span></div>
+</div>
+
+<div id="trainArea">
+  <button id="squatBtn" onclick="clickTrain(event)">🍑 全裸スクワット！！</button>
+  <div class="skill-grid">
+    <button id="sk1" class="skill-btn" onclick="useSkill(1)">✊ ダブルバイセップス<br>(5倍c)<div id="cd1" class="cd-overlay"></div></button>
+    <button id="sk2" class="skill-btn" onclick="useSkill(2)">📐 サイドチェスト<br>(ボスHP減)<div id="cd2" class="cd-overlay"></div></button>
+    <button id="sk3" class="skill-btn" onclick="useSkill(3)">👐 ラットスプレッド<br>(安売り)<div id="cd3" class="cd-overlay"></div></button>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div id="bossCard" class="rowCard">
+    <div class="info">
+      <div id="bossName">👹 ???</div>
+      <div id="bossFlavor">気配を感じる…</div>
+      <div id="bossBarOuter"><div id="bossBarInner"></div></div>
+      <div id="dropStatus" class="drop-badge">ドロップなし</div>
+    </div>
+    <div class="btns">
+      <button class="secondary" style="height:100%; font-size:0.85em;" onclick="boss()">ボス挑戦</button>
+    </div>
+  </div>
+
+  <div id="craftCard" class="rowCard">
+    <div class="info">
+      <h3 style="margin:0;font-size:.8em;">🧪 プロテイン・シェイク</h3>
+      <span style="font-size:0.62em;color:var(--muted);">素材: 🍾フタ×5 / 🧦靴下×5</span><br>
+      <span id="shakeBuffTimer" style="font-size:0.65em;color:var(--good);font-weight:bold;"></span>
+    </div>
+    <div class="btns">
+      <button id="craftBtn" class="secondary" style="background:#114433;border-color:var(--good);" onclick="craftProtein()">混ぜる</button>
+    </div>
+  </div>
+</div>
+
+<div id="gachaCard" class="rowCard">
+  <div class="info">
+    <h3>🎰筋肉ガチャ（💎<span id="gcost">1</span>）<span style="font-size:0.75em;color:#e066ff;">マッスル調整版</span></h3>
+    <div id="gachaBookEl">まだ何も出ていない…</div>
+  </div>
+  <div class="btns">
+    <button id="gachaBtn" class="secondary" onclick="gacha(1)">1回</button>
+    <button id="gacha10Btn" class="secondary" style="color:#e066ff;" onclick="gacha(10)">10連</button>
+  </div>
+</div>
+
+<div id="shopWrap">
+<h3 class="sect">筋肉ショップ（横スクロール）</h3>
+<div id="shops"></div>
+</div>
+
+<div id="logWrap">
+<h3 class="sect">冒険ログ</h3>
+<div id="log"></div>
+</div>
+
+<footer>
+  <span>💾 オートセーブ対応</span>
+  <button class="clear-btn" onclick="clearData()">❌ データ全消去</button>
+</footer>
+</div>
+
+<div id="flash"></div>
+
+<script>
+let st = {
+  pow:0, lv:1, bLv:1, pps:0, g:0, m:1, b:0, 
+  it:[0,0,0,0,0,0,0], 
+  bonusClick:0, burstTimer:0,
+  skCD:[0,0,0], skActive:[0,0,0],
+  drops:{gymPass:false, weights:false, timerExt:false},
+  shakeTimer:0
+};
+let gachaBook = {};
+
+const base=[20,120,700,5000,40000,300000,2500000];
+const add=[1,5,25,150,1000,7000,50000];
+const itemMeta=[
+  {name:"🥤謎のプロテイン", desc:["自販機の隅で発見","激辛味"]},
+  {name:"🏋️念力ダンベル", desc:["物理法則を無視","持ち主も困惑中"]},
+  {name:"🥋鬼コーチ", desc:["説教が有酸素運動","声だけで筋肉痛"]},
+  {name:"🏢24時間ジム", desc:["実は宇宙にある説","閉店したことがない"]},
+  {name:"🚀筋肉ロケット", desc:["行き先は太陽","燃料はプロテイン"]},
+  {name:"🏛️筋肉神殿", desc:["参拝者は全員腹筋崩壊","賽銭箱がダンベル"]},
+  {name:"🌌銀河筋肉ネットワーク", desc:["全宇宙の筋肉と同期","通信速度は筋肉波"]}
+];
+
+const logPrefix = ["【衝撃】", "【極限】", "【神話】", "【警告】", "【怪奇】", "【速報】", "【覚醒】", "【限界突破】", "【大宇宙】", "【緊急マッスル】", "【全裸の真実】", "【大気圏崩壊】"];
+
+// 🍑【2倍増量】全裸スクワット時（クリティカル）のログバリエーション
+const critBases = [
+  "まさかのちゃぶ台返し！大胸筋が超高速で自転し始めた！", "気合い of 雄叫びが地平線を引き裂き、プロテインの雨を降らせた！",
+  "宇宙からのマッスル電波を完全に受信し、右腕が光り輝いた！", "通りすがりのマッチョの英霊が背後に現れ、完璧なポーズをキープした！",
+  "血管の一本一本が激しい重低音のヘヴィメタを奏で、周囲 of 岩が砕けた！", "大臀筋の収縮圧によって局所的なブラックホールが一瞬生成された！",
+  "物理法則が筋肉の威圧感に恐怖し、一瞬だけ重力が完全に消滅した！", "UFOがあなたのバルクに驚愕し、慌ててマッスルエネルギーを射出して逃げ去った！",
+  "あまりのレップスピードに時間の流れが逆行し、筋肉痛が前日に移動した！", "大地があなたの踏み込みに耐えかねて、スクワットの形に陥没した！",
+  "大胸筋の弾力が高すぎて、飛んできた隕石が軌道を変えて太陽へ吹っ飛んだ！", "瞬きする瞬間の広背筋の歪みが、異次元の扉を開きかけた！",
+  "全裸の摩擦抵抗ゼロ理論により、スクワットの下降速度が音速の壁を突破した！", "服を脱ぎ捨てた解放感で臀筋が爆発！放たれた風圧で隣町の風車が全部逆回転した！",
+  "一糸纏わぬ大腿四頭筋が放つ後光があまりにも眩しく、太陽が恥ずかしさで雲に隠れた！", "生まれたままの姿で放つフルパワーボトム、地球の磁気嵐が一瞬だけ正常化した！",
+  "大腿直筋の怒涛のカットが、周囲の時空をチェス盤のように細切れに引き裂いた！", "全裸スクワットの爆風により、半径2キロのすべての窓ガラスが筋肉の形にヒビ割れた！",
+  "大胸筋が自律稼働を開始！ドラムのツーバスの如き超高速ステップを勝手に刻み始めた！", "お尻の筋肉の引き締め圧が限界を突破し、空気中の炭素をその場で10カラットのダイヤに変えた！",
+  "ボトムポジションでの静止があまりにも完璧すぎて、時空そのものがフリーズした！", "僧帽筋の急激な隆起によって局所的な上昇気流が発生し、部屋のプロテインの粉が全て舞い散った！",
+  "全裸の精神が宇宙の真理とリンク！「服とは、肉体を隠すためのただの弱さ」という天啓を得た！", "大腿四頭筋のカットが激しすぎて、床に落ちていた消しゴムが4分割にスライスされた！",
+  "ヒップドライブの推進力が強すぎて、座っていたパイプ椅子が摩擦熱でプラズマ化した！", "背中の広背筋が突然一対の光の翼として展開し、部屋の天井を突き破りかけた！",
+  "外腹斜筋のうねりが周囲の重力波と完全に干渉し、部屋の中のダンベルが一斉に浮き上がった！", "一瞬のポージングの静寂が、音速を超えたソニックブームとなって隣の家の壁をノックした！",
+  "皮膚の全細胞から黄金のマッスルオーラが噴出！部屋の蛍光灯が消えているのに眩しすぎる！", "スクワットの勢いで地球の自転をわずかに加速させ、今日の24時間を1秒短縮してしまった！",
+  "臀筋の完全なる収縮が、周囲のWi-Fi電波をすべて筋肉波へと書き換えた！", "生まれたままのバルクから放たれる熱量が、エアコンの設定温度を強制的に18度に下げた！"
+];
+
+// 🍑【2倍増量】全裸スクワット時（イベント）のログバリエーション
+const eventBases = [
+  "プロテインの妖精が現れ、シェイカーに極上のアミノ酸をドバドバと注ぎ込んだ！", "宇宙猫が肉球で超圧縮した最高品質の筋肉ちゅ〜るを差し入れてきた！",
+  "置き配で届いた身に覚えのない10トンの鉄塊が、あなたの筋肉欲を激しく刺激した！", "筋肉の大魔導士が通りすがり、プロテインを全て黄金に変える魔法をかけ損ねて去った！",
+  "古代の超肉食恐竜の魂が背筋にシンクロし、一時的に野獣のバルクを手に入れた！", "流れ星があなたの背中に直撃したが、広背筋の跳ね返し性能で宇宙へ跳ね返った！",
+  "ジムの床から突如として100%ピュアなプロテイン温泉が湧き出し、全員が歓喜した！", "筋肉の神が夢枕に立ち、「ワンモアレップ…」という聖なるカンペを置いていった！",
+  "ダンベルが突然懐き始め、あなたの後ろを子犬のようについて回るようになった！", "プロテインの粉末を吸い込んだアリが、突如ベンチプレス50kgを挙げて巣へ帰った！",
+  "「服を着ろ」という常識の概念が、鍛え抜かれた外腹斜筋に弾き返されて消滅した！", "全裸スクワットのフォームが美しすぎて、野生の鹿が整列して見学し始めた！",
+  "プロテインのシェイカーが突然意思を持ち、「もっと激しく振ってくれ」とテレパシーで懇願してきた！", "天井から謎のマッチョなクモが降りてきて、完璧なスポッター（補助）の構えを取った！",
+  "隣のトースターからプロテインバーが直撃！あなたの口元に完璧な角度で吸い込まれた！", "スマートウォッチが「あなたの心拍数はもはや筋肉の鼓動です」という怪文書を表示した！",
+  "鏡に映った自分の影が、本体より先にワンモアレップを始めて手本を示してきた！", "床のフローリングがあなたの足圧に感動し、木目のパターンが全てシックスパックに変化した！",
+  "ベランダの鳩が一斉にサイドチェストを決めながら、あなたのスクワットに敬礼した！", "宅配便のドライバーがあなたの全裸バルクを見た瞬間、ハンコを忘れて筋肉でサインを求めてきた！",
+  "スマホの音声アシスタントが突然野太い声に変わり、「ナイスバルク！」と連呼し始めた！", "プロテインの袋を開けたら、中から小さな黄金のダンベル（1g）がポロッと出てきた！",
+  "突然部屋の畳がすべて高反発のジムマットにトランスフォームし、筋トレ効率が爆増した！", "通りすがりのそよ風が、あなたの三角筋を撫でた瞬間に「熱っ！」と言って吹き抜けていった！",
+  "教科書に載っている偉人たちの肖像画が、あなたのスクワットに合わせて一斉にマッスルポーズを取った！", "冷蔵庫があなたの筋力に恐れをなし、中のブロッコリーを最も美味しい温度に自動調整した！"
+];
+
+// 🍑【2倍増量】全裸スクワット時（日常フレーバー）のログバリエーション
+const flavorBases = [
+  "隣の唐揚げ屋からの暴力的な匂いに精神が崩壊しかけたが、腹斜筋のロックで耐えきった。", "激烈な睡魔が襲ってきたが、脳が眠る前に大腿四頭筋が勝後にシャドーボクシングを始めた。",
+  "鏡の前でサイドチェストを3時間決めたら、鏡のなかの自分が感動の涙を流していた。", "蚊が血を吸おうとした瞬間、筋肉の超高密度構造に挟まれてペシャンコに圧縮された。",
+  "筋トレBGMのテンポが速すぎて、心臓がBPM300のドラムベースを刻みだした。", "「明日から頑張る」という甘えの概念が、脳に届く前に上腕二頭筋の収縮で絞殺された。",
+  "ふと自分の大胸筋を見つめたら、大胸筋もまたこちらをじっと見つめ返している気がした。", "プロテインを水で割るか牛乳で割るかの哲学論争が、脳内で1万回火花を散らした。",
+  "プロテインのシェイカーを振りすぎて、近裏のWi-Fi電波が一時的に微弱になった。", "あまりの直直不動ポーズの美しさに、彫刻家がスカウトにやってきた。",
+  "全裸での深すぎるボトムポジション中、通りすがりの鳩と完全に魂の会話を交わした。", "衣類の摩擦損失が0%になった結果、大腿部の温度が一時的に摂氏180度に達した。",
+  "全裸でスクワットをしていたら、自分の影が恥ずかしがって壁の裏に隠れようとした。", "プロテインの粉末をこぼしたが、落ちる前に大胸筋の気圧差で吸い戻すことに成功した。",
+  "上腕三頭筋が「明日は肩の日にしてくれ」と小声で囁いた気がしたが、無視してスクワットを続けた。", "靴下を履こうとしたが、大腿四頭筋のバルクが邪魔をして足元まで手が届かなかった。",
+  "「全裸は正義」という独自の憲法を脳内で可決し、さらに深くボトムへと沈み込んだ。", "大胸筋をピクピク動かすだけで、部屋のエアコンのリモコンを操作できないか試みたが失敗した。",
+  "鏡の中の自分があまりにも仕上がっていたため、思わずハイタッチを交わそうとしてガラスに激突した。", "ブロッコリーの芯を噛み砕く音と、大腿骨の軋む音が完璧なハーモニーを奏でた。",
+  "自分の大臀筋に「調子はどうだ？」と問いかけたら、完璧な弾力ではね返された。", "全裸の解放感により、重力の概念が実質「ちょっとした嫌がらせ」程度にしか感じられなくなった。",
+  "通販サイトのカートがすべてプロテインとダンベルで埋まり、AIが「あなた人間ですか？」と聞いてきた。", "スクワットのあまりの深さに、床下のネズミが「すいません、通りまーす」と挨拶してきた。",
+  "プロテインを飲むスピードが速すぎて、食道が一瞬だけ「アミノ酸の超特急ライン」と化した。", "背中の広背筋の広さを測ろうとしたが、メジャーが筋肉の山脈に迷い込んで紛失した。"
+];
+
+const bossWinBases = [
+  "見事に粉砕！対戦相手は「筋肉の次元が違う」と語り遺し、光の粒子となって消滅した。", "圧倒的な勝利の余波で、周囲のビル3棟がマッチョのシルエット型に綺麗にくり抜かれた！",
+  "涙を流して敗北を認めたボスが、隠し持っていた時空のダイヤを震えながら差し出した。", "戦う前にあなたのサイドチェストの風圧を浴びた敵は、静かに白旗を上げてプロテインを差し出した。",
+  "敵の絶対防御バリアを、鍛え上げた全裸スクワットの純粋な接地圧だけで文字通り踏み潰した！"
+];
+
+const bossLoseBases = [
+  "「その程度のバルクで我に挑むとは、プロテインの無駄遣いだ」と冷酷に一蹴された…", "筋力があまりにも足りず、ボスの放つ圧倒的マッチョオーラの重力に潰されて即座にリタイア…",
+  "ボスの美しすぎるダブルバイセップスに見とれている間に、一瞬で場外へ弾き飛ばされた…", "筋肉の厚みがボスの想定以下だったため、挑戦資格すら認められず門前払いを喰らった。"
+];
+
+const gachaCost = 1;
+
+// 🎰【今の半分（50倍相当）に調整 ＆ SSRダイヤ獲得を削除】
+const gachaPool=[
+  {rarity:"N",  weight:49.5, icon:"🥤", name:"ペットボトルのフタ", effect:st=>{st.pow+=25000;}, text:"筋力+25,000"},
+  {rarity:"N",  weight:49.5, icon:"🧦", name:"片方だけの靴下",     effect:st=>{st.pow+=25000;}, text:"筋力+25,000"},
+  {rarity:"R",  weight:25, icon:"👕", name:"限定筋肉Tシャツ",     effect:st=>{st.pps+=1250;},  text:"毎秒+1,250"},
+  {rarity:"R",  weight:25, icon:"🧢", name:"筋肉キャップ",       effect:st=>{st.pps+=1250;},  text:"毎秒+1,250"},
+  {rarity:"SR", weight:12, icon:"🎽", name:"伝説のサポーター",    effect:st=>{st.bonusClick+=1000;}, text:"クリック力+1,000"},
+  {rarity:"SR", weight:10, icon:"🐐", name:"筋肉の師匠(ヤギ)",    effect:st=>{st.pps+=7500;st.pow+=150000;}, text:"毎秒+7,500·筋力+150,000"},
+  {rarity:"SSR",weight:4,  icon:"👑", name:"黄金の腹筋伝説",      effect:st=>{st.bonusClick+=2500;st.pow+=1500000;}, text:"クリック力+2,500·筋力+1,500,000"},
+  {rarity:"SSR",weight:2,  icon:"🌈", name:"虹色プロテイン",      effect:st=>{st.pow+=500000;}, text:"筋力+500,000（※ダイヤ増幅機能停止）"}, // 💎獲得処理を完全に削除
+  {rarity:"UR", weight:0.5,icon:"🌌", name:"マッスル·ビッグバン", effect:st=>{st.bonusClick+=25000;st.pow+=25000000;}, text:"【永続】初期クリック力+25,000·筋力+25,000,000"}
+];
+const rarityClass={N:"g-n",R:"g-r",SR:"g-sr",SSR:"g-ssr",UR:"g-ur"};
+
+const bossAdj=["筋肉モリモリの","伝説の","覚醒した","宇宙一","本気の","限界突破した"];
+const bossNoun=["筋肉おじさん","マッチョ神","プロテイン仙人","筋肉モンスター","スクワット狂","筋肉ラスボス"];
+
+const titles = [
+  "無の極み", "プロテインの匂いを知る者", "ジムの住所を調べた男", "スクワットの概念との遭遇", "自重の重みに驚く一般人",
+  "ダンベルを直視した男", "プロテインシェイカー購入検討中", "腕立て伏せ1回の奇跡", "筋肉痛とのファーストコンタクト", "バルクの産声",
+  "ヒヨコ級の収縮力", "脂肪細胞からの宣戦布告", "インナーマッスルが微震", "ジムの自動ドアを開けた男", "シューズの紐を結ぶマッチョ",
+  "ベンチプレスの空棒に挑む", "プロテインを水で割る初心者", "大胸筋のうぶ毛が硬化", "腹筋の位置を確認した男", "筋肉痛を愛し始めた変態",
+  "体重計の数値を疑う者", "体脂肪率減少の兆し", "サプリメント of the Year", "10kgダンベルとの握手", "鏡の前でコッソリポーズ",
+  "大腿四頭筋のプチ覚醒", "有酸素運動の誘惑を断つ者", "筋肉の英才教育生", "プロテインシェイクの泡立ち担当", "バルクアップの初期衝動",
+  "背筋が少しだけ喋りだした", "ジムの常連に挨拶される男", "プロテインのダマを愛する者", "ダンベルが軽く見える錯覚", "筋肉痛のグラデーション",
+  "大胸筋が服を押し出す", "血管の浮き沈み観測士", "スクワットの深さに拘る男", "脂肪燃焼のキャンプファイヤー", "マッスルメモリーの目覚め",
+  "ベンチプレス50kgの壁突破", "ジムの鏡と友達になった男", "プロテイン中毒ステージ1", "僧帽筋の小高い丘", "三角筋がピンポン玉サイズ",
+  "上腕二頭筋のプチ山脈", "腹筋にうっすら走る一本の線", "スクワット中に神を見る男", "プロテインの消費量が米を超える", "街角のプチマッチョ",
+  "歩く大胸筋レーダー", "筋肉痛がないと不安になる病", "プロテインの銘柄にうるさい男", "背中に小さな鬼の顔(赤ちゃん)", "ダンベルとテレパシー通信",
+  "体脂肪率シングルへの挑戦", "バルクの発展途上国", "Tシャツの袖がキツい男", "腹筋が4つに分裂", "ジムのヌシに一目置かれる",
+  "ベンチプレス自重超えの戦士", "プロテインを粉のまま飲む漢", "大胸筋の防弾チョッキ化", "歩幅がスクワットの男", "三角筋がテニスボール級",
+  "鬼の微笑みが背中に宿る", "脂肪細胞の大量絶滅", "筋肉の有線放送受信モード", "シェイカーの摩擦熱で湯を沸かす", "マッスルエリートの卵",
+  "ベンチプレス100kgの地平線", "腹筋が完全に8パックへ進化", "広背筋で上昇気流を起こす男", "大胸筋が防弾ガラスを陸駕", "プロテインの海を泳ぐ魚",
+  "背中の鬼が完全に目を開く", "三角筋がスイカサイズへ肥大", "スクワットの風圧でロウソクを消す", "細胞の9割がミトコンドリア", "国家予算級のバルクアップ",
+  "【第1臨界】マッスルブレイカー", "歩く歩道より速いスクワット", "大胸筋の超高密度コンクリート", "背中の鬼が咆哮を始める", "プロテインを大気から吸収",
+  "ダンベルを握るだけで曲げる男", "体脂肪率が計測不能(低すぎ)", "上腕二頭筋のチョモランマ", "ジムの重力が1.5倍になる漢", "都市伝説のマッチョ神",
+  "ベンチプレス150kgの鉄人", "腹筋の溝でコインが挟まる", "広背筋で大空を滑空する男", "大胸筋の要塞都市", "プロテインをナノ化する胃袋",
+  "背中の鬼が二頭身から四頭身へ", "三角筋がもはや肩幅を超える", "スクワットで局所的大震災", "全身が天然の鋼鉄合金", "大陸間弾道マッチョ",
+  "【第2臨界】ギガマッスル", "音速のワンモアレップ", "大胸筋の超新星爆発予報", "背中の鬼が英語を話しだす", "プロテインの雨を乞う呪術師",
+  "バーベルを睨むだけで挙げる漢", "血管が完全に高速道路網", "上腕三頭筋が彫刻の最高傑作", "ジムの床が彼の足跡で陥補", "一国を滅ぼせる大腿四頭筋",
+  "ベンチプレス200kgの超越者", "腹筋の溝でダイヤモンドを密造", "広背筋で台風の進路を変える", "大胸筋のabsolute防衛線", "プロテインをエネルギー波で飲む",
+  "背中の鬼がアドーラ像に変化", "三角筋が地球の丸みに並ぶ", "スクワットで地軸が0.1度傾く", "細胞内の水分がすべてアミノ酸", "人類の進化の行き止まり(マッチョ)",
+  "【第3臨界】テラバルク", "光速 of ポージング", "大胸筋が周囲 of 光を屈折させる", "背中の鬼が独自の宗教を開く", "プロテインの源流を探し当てた男",
+  "重力の概念を筋肉で論破する漢", "血管が青く発光し始める", "上腕二頭筋が惑星直列を起こす", "ジムの器具が彼にひれ伏す", "地球をスクワットの踏み台にする",
+  "ベンチプレス300kgの超人類", "腹筋の溝がグランドキャニオン級", "広背筋が大陸プレートに匹敵", "大胸筋から濃縮酸素が漏れ出す", "プロテインを素粒子に分解摂取",
+  "背中の鬼が本体のバルクに驚く", "三角筋が宇宙ステーションを遮る", "スクワットで時間の流れが1秒遅れる", "存在自体が歩く永久機関", "銀河系最強 of バルクマスター",
+  "【第4臨界】ペタマッチョ", "超時空スクワットの先駆者", "大胸筋がダークマターを引き寄せる", "背中の鬼が宇宙の真真理を悟る", "プロテインの概念を擬人化した存在",
+  "バーベルの重さを負の数にする漢", "血管が銀河の星雲のように輝く", "上腕三頭筋が時空の裂け目を塞ぐ", "ジムそのものが彼の肉体の一部", "恒星の重力に勝利した大腿四頭筋",
+  "ベンチプレス500kgの魔神", "腹筋の溝が次元の壁を切り裂く", "広背筋でアンドロメダ銀河を引き寄せる", "大胸筋の引力を月を軌道から外す", "プロテインの粉末をビッグバンに変える",
+  "背中の鬼が神殺しの武器になる", "三角筋が小惑星帯の質量を超える", "スクワットで過去の歴史が少し変わる", "全細胞が並行世界と同期", "宇宙の全物質をマッスル化する男",
+  "【第5臨界】エクサバルク", "並行世界の自分と合同トレする男", "大胸筋がブラックホールを圧縮消滅", "背中の鬼が次元の創造主になる", "プロテインを時空のエネルギーに変える",
+  "因果律の鎖をデッドリフトで引きちぎる", "血管が宇宙の超ひも理論を証明", "上腕二頭筋が超空間を歪める", "彼が歩いた場所がすべて聖地化", "次元の重みをスクワットで撥ね退ける",
+  "ベンチプレス1トンの破壊神", "腹筋の溝にアカシックレコードが刻まれる", "広背筋が多元宇宙を包み込む", "大胸筋の鼓動が全宇宙の心拍数", "プロテインの味を概念として超越",
+  "背中の鬼が本体と完全に融合(超覚醒)", "三角筋が時空の次元数を1増やす", "スクワットでビッグバンが再発動", "肉体という概念を置き去りにしたバルク", "マッスル·マルチバースのabsolute神",
+  "【第6臨界】ゼタマッチョ", "神々の王をベンチプレスの重りにする", "大胸筋の密度が中性子星を凌駕", "背中の鬼が天界を完全制覇", "プロテインを概念世界の理に組み込む",
+  "運命のシナリオをポージングで書き換える", "血管の脈動が次元の振動数と完全に一致", "上腕二頭筋がマルチバースを粉砕", "彼が息を吸うと一銀河が消滅する", "超ひも理論を超越した超筋繊維",
+  "ベンチプレス100トンの終焉の王", "腹筋の溝にすべての並行世界が収納される", "広背筋が無限 of 時空を覆い尽くす", "大胸筋の収縮で全次元が1つの点になる", "プロテインの始まりの一滴を創りし者",
+  "背中の鬼が全宇宙の王座に君臨", "三角筋が無限次元を超越して肥大", "スクワットの風圧で概念そのものを吹き飛ばす", "全知全能の筋肉のイデア", "マッスルオムニバースの支配者",
+  "【第7臨界】ヨタバルク", "無限の並行世界の全マッチョの頂点", "大胸筋が全時空の質量を内包", "背中の鬼が神話の概念を消去", "プロテインの完全なる特異点",
+  "論理と数式を筋肉の硬度で粉砕する者", "血管の輝きが宇宙の夜明けを再現", "上腕三頭筋がオムニバースを支える柱", "彼がポーズを決めるたびに新しい宇宙が1京個生まれる", "限界という概念をラットプルで引き裂いた男",
+  "ベンチプレス無限大の超越神", "腹筋の溝がこの世のすべての答えを示す", "広背筋が全存在を肯定する翼となる", "大胸筋 of 虚無の世界を照らす輝き", "プロテインの向こう側の真理に到達した者",
+  "背中の鬼が全知全能を超えた「何か」になる", "三角筋がすべての次元と概念を飲み込む", "スクワットの踏み込みがすべての始まりの「ワンモアレップ」", "全知全能マッチョの向こう側"
+];
+
+const titleTiers = titles.map((t, i) => ({max: i + 2, name: t}));
+titleTiers[titleTiers.length - 1].max = Infinity;
+
+function saveGame() {
+  localStorage.setItem("muscle_st_v7_nr", JSON.stringify(st));
+  localStorage.setItem("muscle_book_v7_nr", JSON.stringify(gachaBook));
+}
+function loadGame() {
+  let savedSt = localStorage.getItem("muscle_st_v7_nr");
+  let savedBook = localStorage.getItem("muscle_book_v7_nr");
+  if(savedSt) st = Object.assign(st, JSON.parse(savedSt));
+  if(savedBook) gachaBook = JSON.parse(savedBook);
+}
+
+function clearData() {
+  if(confirm("全ての筋肉の記憶を消去して一般人に戻りますか？（レベルもリセットされます）")) {
+    localStorage.clear();
+    st = {
+      pow:0, lv:1, bLv:1, pps:0, g:0, m:1, b:0, 
+      it:[0,0,0,0,0,0,0], 
+      bonusClick:0, burstTimer:0,
+      skCD:[0,0,0], skActive:[0,0,0],
+      drops:{gymPass:false, weights:false, timerExt:false},
+      shakeTimer:0
+    };
+    gachaBook = {};
+    location.reload();
+  }
+}
+
+function need(){
+  return Math.floor(Math.pow(st.lv, 2.5) * 100);
+}
+
+function bossHp(){
+  let hp = Math.floor(Math.pow(st.bLv, 2.3) * 150);
+  if(st.bLv % 50 === 0) hp *= 2.5; 
+  if(st.skActive[1] > 0) hp = Math.floor(hp * 0.6); 
+  return hp;
+}
+
+function bossInfo(){
+  if(st.bLv === 50) return {name:"🏢エリアボス：ジムの出禁魔人", flavor:"【確定ドロップ:ジムの永久パス】ショップの上昇コスト緩和！"};
+  if(st.bLv === 100) return {name:"🌌エリアボス：マッスル·ゴッド", flavor:"【確定ドロップ:神の神域ウェイト】10連ガチャ制限解除"};
+  if(st.bLv === 150) return {name:"🌟世界ボス：終焉を告げるマッチョ", flavor:"【確定ドロップ:時空のシェイカー】スキル効果時間2倍"};
+  if(st.bLv % 10 === 0) return {name:"⚠️最終試練：昨日の自分", flavor:"勝てばダイヤが超大量。"};
+  
+  const a = bossAdj[(st.bLv + st.b) % bossAdj.length];
+  const n = bossNoun[(st.bLv * 3 + st.m) % bossNoun.length];
+  return {name:"👹" + a + n, flavor:"闘気Lv" + st.bLv + "相当"};
+}
+
+function title(){
+  const tier = titleTiers.find(t=>st.lv<t.max);
+  return tier ? tier.name : titleTiers[titleTiers.length-1].name;
+}
+
+// 大宇宙ギャグデータベース（10万通り以上の組み合わせを維持）
+const logSubjects=[
+  "筋肉仙人","野生のダンベル","筋肉の妖精","宇宙ゴリラ","黄金プロテイン","銀河ジム","伝説のスクワット","筋肉神","筋繊維","超重量バーベル",
+  "ナノプロテイン大爆発","大腿四頭筋の亡霊","ジムの居座り仙人","ベンチプレスの守護神","プロテインシェイカーの精霊","腹斜筋の魔術師",
+  "チートデイの悪魔","100トンの覇王ケトルベル","右腕の宿り木マッチョ","全自動高反発スクワットマシン","灼熱のヘヴィダンベル","大胸筋の超新星",
+  "限界を超えたチンニングスタンド","プロテインの滝壺","ナタデココ風アミノ酸","歩く解剖図譜","上腕三頭筋のヘヴィメタル","地球外生命体マッチョ",
+  "筋トレ中に現れる幻覚","全裸のバルク集合体","プロテイン自動販売機の神","三角筋の破壊衝動","異次元のトレーニングベルト","ジムの最深部に眠るダンベル",
+  "パワーリフティングの生き霊","筋肉痛の臨界点","タピオカプロテインを愛するブルドーザー","ちぎれかけたヨガマット","筋肉の有線放送局長","プロテインで茹でたブロッコリー",
+  "腹筋がシックスパックに割れたバナナ","終電を逃した大胸筋","自撮り棒を持った三角筋","鏡の前で迷子になった広背筋","限界を知らないプロテインのダマ",
+  "全裸で宇宙遊泳する骨盤","筋肉痛を擬人化したマスコット"
+];
+const logActions=[
+  "覚醒した","爆発した","踊り出した","進化した","共鳴した","光り輝いた","時空を歪めた","歌い始めた","増殖した","転生した",
+  "音速を超えた","重力を論破した","大気圏を突破した","プロテインを蒸発させた","筋肉痛を過去へ吹き飛ばした","極限の収縮に成功した",
+  "鏡の向こうでドヤ顔した","サイドチェストの風圧で家を吹き飛ばした","細胞レベルでヘヴィメタを刻んだ","バルクの限界に達した","服の概念を抹消した","異次元のポーズを決めた",
+  "周囲の酸素をすべて大胸筋に吸い込んだ","地面を30センチ陥没させた","プロテインの海へダイブした","バーベルと魂の対話を果たした","筋肉痛をエネルギーへ変換した",
+  "スクワットの軌道上で光速に達した","すべての服の繊維を弾き飛ばした","細胞分裂の速度を100倍にした","鏡に向かって熱烈な愛の告白をした","筋肉波を全宇宙に発信した",
+  "脂肪細胞に完全勝利の宣言をした","プロテインの粉末だけで気体化した","物理法則を強引にへし折った","筋繊維をプラチナ合金に変身させた","タピオカ感覚で鉄球を飲み込んだ",
+  "プロテインシェイカーでカクテルドレスを自作した","全裸のまま国会答弁に臨んだ","大臀筋の振動だけでWi-Fiを5Gにアップグレードした","服を着るのが面倒で概念を爆破した",
+  "スクワットの摩擦熱でチャーハンを炒めた","ベンチプレスをベンチごと持ち上げた","鏡の中の自分とジャンケンして勝利した","筋肉痛をメルカリに出品した",
+  "プロテインの粉をそのまま鼻から吸引した","大胸筋を左右交互に高速メトロノーム化した"
+];
+const logResults=[
+  "世界中が歓声に包まれた！","銀河が震えた！","筋力が高まる予感！","伝説がまた一つ生まれた！","新たな神話が刻まれた！","プロテインの雨が降った！",
+  "ダンベルが敬礼した！","宇宙が静まり返った！","歴史が書き換わった！","筋肉神が微笑んだ！","隣町のプロテインが全て沸騰した！",
+  "地球の地軸がわずかに補正された！","野生のマッチョ達が一斉に北を向いた！","有酸素運動の概念がこの世から消滅した！","プロテインのダマが完全消滅した！",
+  "全米のジムが一瞬営業停止した！","脂肪細胞が恐怖で一斉に土下座した！","あまりのバルクに太陽が眩しがった！","プロテインシェイカーが黄金化した！",
+  "スクワットの風圧で雲が全部消し飛んだ！","上腕二頭筋が局所的な磁気嵐を起こした！","全筋肉細胞が歓喜のスタンディングオベーションをした！",
+  "あまりのバルクの輝きに、夜空の星座の位置が一瞬だけズレた！","ジム内の重力が一時的に10分の1になり、全員が超軽量化した！",
+  "通りすがりの彫刻家がショックのあまり筆を折ってマッスルに目覚めた！","プロテインの妖精が感動のあまり嬉涙で溺れかけた！",
+  "近くの自動ドアが筋肉の威圧感を感知して開きっぱなしになった！","地球上のすべての体重計が一瞬だけゼロを表示した！",
+  "筋トレ用のBGMが感動して音割れした！","サプリメントの成分表が勝手に書き換わった！","ジムの鏡があなたの背中の鬼と目が合って恐怖で震えた！",
+  "宇宙ステーションから「地表に巨大な大胸筋見える」と報告が入った！","あまりの風圧で隣の部屋のプロテインの蓋が閉まった！",
+  "大臀筋の収縮によって数秒間だけ部屋のWi-Fi速度が10倍になった！","全裸の美学が完全に教科書に載るレベルへ到達した！","近所の犬がマッチョ語を理解し始めた！",
+  "プロテインのシェイカーが遠心力でそのまま人工衛星になった！","あまりの筋肉密度に服が脱水症状を起こした！","筋肉痛が「もう無理です」と泣いて謝った！",
+  "通りすがりのサラリーマンが全員ネクタイをちぎってスクワットを始めた！","全裸の神々が天界からクラウドファンディングでプロテインを送ってきた！",
+  "自分の影までマッチョになって勝手に筋トレを始めた！"
+];
+
+function randomAdventureLog(cls){
+ const p=pick(logPrefix),s=pick(logSubjects),a=pick(logActions),r=pick(logResults);
+ msg(`${p} ${s}が${a}。${r}`,cls);
+}
+
+function generateLog(bases, cls) {
+  const prefix = pick(logPrefix);
+  const body = pick(bases);
+  msg(`${prefix} ${body}`, cls);
+}
+
+function msg(t,cls){
+  const line = document.createElement('div');
+  line.className = 'logline ' + (cls||'');
+  line.textContent = t;
+  log.prepend(line);
+  while(log.children.length>40) log.removeChild(log.lastChild);
+}
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function flash(text){
+  const f = document.getElementById('flash');
+  f.textContent = text;
+  f.classList.remove('show');
+  void f.offsetWidth;
+  f.classList.add('show');
+}
+
+function popup(text, x, y, isBurst=false){
+  const area = document.getElementById('trainArea');
+  const el = document.createElement('div');
+  el.className = 'popup' + (isBurst ? ' burst-pop' : '');
+  el.textContent = text;
+  el.style.left = x+'px';
+  el.style.top = y+'px';
+  area.appendChild(el);
+  setTimeout(()=>el.remove(), 800);
+}
+
+function getMuscleMemoryBonus() {
+  return Object.values(gachaBook).reduce((a, b) => a + b, 0);
+}
+
+function clickPower(){ 
+  let lvBonus = Math.floor(Math.pow(st.lv, 2) * 0.5);
+  let basePower = 1 + st.bonusClick + (getMuscleMemoryBonus() * 5) + lvBonus; 
+  if (st.burstTimer > 0 || st.skActive[0] > 0) {
+    basePower *= 5; 
+  }
+  return basePower;
+}
+
+function draw(){
+  p.textContent = Math.floor(st.pow);
+  l.textContent = st.lv;
+  
+  clPowerDisplay.textContent = clickPower();
+  
+  let ppsText = st.pps + (getMuscleMemoryBonus() * 10); 
+  if(st.shakeTimer > 0) ppsText *= 2;
+  s.textContent = ppsText + (st.burstTimer > 0 ? " (🔥BURST!)" : "") + (st.shakeTimer > 0 ? " (🧪SHAKE!)" : "");
+  
+  g.textContent = st.g;
+  titleText.textContent = title();
+
+  let dropsText = "所持バフ: ";
+  if(st.drops.gymPass) dropsText += "🎫店安 ";
+  if(st.drops.weights) dropsText += "🏋️10連解放 ";
+  if(st.drops.timerExt) dropsText += "⏳スキル延長 ";
+  if(dropsText === "所持バフ: ") dropsText = "レアドロップ未所持";
+  dropStatus.textContent = dropsText;
+
+  shops.innerHTML = "";
+  for(let i=0;i<itemMeta.length;i++){
+    let rate = st.drops.gymPass ? 1.35 : 1.5;
+    let c = Math.floor(base[i]*Math.pow(rate, st.it[i]));
+    if(st.skActive[2] > 0) c = Math.floor(c * 0.8);
+
+    const meta = itemMeta[i];
+    const desc = meta.desc[st.it[i] % meta.desc.length];
+    const canAfford = st.pow >= c;
+    shops.innerHTML += `<div class="card">
+      <div class="iname">${meta.name}</div>
+      <div class="idesc">${desc}</div>
+      <div>Lv${st.it[i]}·+${add[i]}/秒</div>
+      <button class="${canAfford?'afford':''}" onclick="buy(${i})">${c}</button>
+    </div>`;
+  }
+
+  gachaBtn.disabled = st.g < gachaCost;
+  gachaBtn.classList.toggle('afford', st.g >= gachaCost);
+  
+  gacha10Btn.disabled = st.g < (gachaCost * 10);
+  gacha10Btn.classList.toggle('afford', st.g >= (gachaCost * 10));
+
+  drawGachaBook();
+
+  const bi = bossInfo();
+  bossName.textContent = bi.name;
+  bossFlavor.textContent = bi.flavor + ` 必要:${bossHp()}`;
+  const ratio = Math.min(100, Math.floor(100*st.pow/bossHp()));
+  bossBarInner.style.width = ratio+"%";
+
+  let leveled=false;
+  while(st.pow >= need()){
+    st.lv++;
+    leveled=true;
+  }
+  if(leveled){
+    msg(`🎉Lv${st.lv}にアップ！称号：「${title()}」 クリック力が超成長！`, 'l-levelup');
+    l.textContent = st.lv;
+    titleText.textContent = title();
+  }
+  
+  for(let i=1; i<=3; i++){
+    let btn = document.getElementById('sk'+i);
+    let cdEl = document.getElementById('cd'+i);
+    if(st.skActive[i-1] > 0){
+      btn.style.background = "#ff4500";
+      cdEl.style.width = "0%";
+    } else if(st.skCD[i-1] > 0){
+      btn.style.background = "#221133";
+      let maxCD = i===1 ? 30 : (i===2 ? 20 : 40);
+      cdEl.style.width = (st.skCD[i-1] / maxCD * 100) + "%";
+    } else {
+      btn.style.background = "#5522aa";
+      cdEl.style.width = "0%";
+    }
+  }
+
+  if(st.shakeTimer > 0){
+    shakeBuffTimer.textContent = `🧪残り ${st.shakeTimer}s (PPS 2倍!)`;
+  } else {
+    shakeBuffTimer.textContent = "";
+  }
+  
+  saveGame();
+}
+
+function clickTrain(e){
+  st.pow += clickPower();
+  const btn = document.getElementById('squatBtn');
+  btn.classList.remove('punch'); void btn.offsetWidth; btn.classList.add('punch');
+
+  let gained = clickPower();
+  
+  if(st.burstTimer <= 0 && Math.random() < 0.03){
+    st.burstTimer = st.drops.timerExt ? 20 : 10; 
+    msg("🔥バルクアップ·バースト発動！全筋肉細胞が超活性化（クリック5倍）！", "l-burst");
+    flash("BULK UP BURST!!");
+    document.body.classList.add('burst-mode');
+    document.getElementById('squatBtn').classList.add('bursting');
+  }
+
+  // 🍑クリック時ログ（バリエーション2倍化適用部分）
+  if(Math.random() < 0.05){
+    const crit = 100;
+    st.pow += crit;
+    gained += crit;
+    generateLog(critBases, 'l-crit');
+  } else if(Math.random() < 0.02){
+    generateLog(flavorBases);
+  }
+
+  if(e){
+    const rect = btn.getBoundingClientRect();
+    const areaRect = document.getElementById('trainArea').getBoundingClientRect();
+    const x = rect.left - areaRect.left + rect.width/2 + (Math.random()*40-20);
+    const y = rect.top - areaRect.top - 6;
+    popup('+'+gained, x, y, (st.burstTimer > 0 || st.skActive[0] > 0));
+  }
+
+  draw();
+}
+
+function useSkill(num){
+  if(st.skCD[num-1] > 0 || st.skActive[num-1] > 0) return;
+  let duration = [5, 1, 10][num-1];
+  if(st.drops.timerExt) duration *= 2; 
+  st.skActive[num-1] = duration;
+  
+  if(num === 1) msg("✊ ポーズ『ダブルバイセップス』！クリック力が5倍になった！");
+  if(num === 2) msg("📐 ポーズ『サイドチェスト』！次のボスの体力を構造破断させた！");
+  if(num === 3) msg("👐 ポーズ『ラットスプレッド』！商品価格を20%割引させた！");
+  draw();
+}
+
+buy=(i)=>{
+  let rate = st.drops.gymPass ? 1.35 : 1.5;
+  let c = Math.floor(base[i]*Math.pow(rate, st.it[i]));
+  if(st.skActive[2] > 0) c = Math.floor(c * 0.8);
+
+  if(st.pow >= c){
+    st.pow -= c;
+    st.it[i]++;
+    st.pps += add[i];
+    msg(`🛒${itemMeta[i].name}を導入！毎秒+${add[i]}`);
+    draw();
+  }
+}
+
+function craftProtein(){
+  let fCount = gachaBook["ペットボトルのフタ"] || 0;
+  let sCount = gachaBook["片方だけの靴下"] || 0;
+  if(fCount >= 5 && sCount >= 5){
+    gachaBook["ペットボトルのフタ"] -= 5;
+    gachaBook["片方だけの靴下"] -= 5;
+    st.shakeTimer += 30; 
+    msg("🧪 ハズレ素材をシェイク！最高級特製マッスルカクテルが完成！30秒間PPSが2倍！", "l-reborn");
+    flash("PROTEIN SHAKE!");
+    draw();
+  } else {
+    msg("❌ 素材が足りない！(ガチャのハズレ枠のフタと靴下が5個ずつ必要です)", "l-fail");
+  }
+}
+
+setInterval(()=>{
+  let ppsGain = st.pps + (getMuscleMemoryBonus() * 10);
+  if (st.shakeTimer > 0) ppsGain *= 2; 
+  if (st.burstTimer > 0) ppsGain *= 1.5; 
+  st.pow += ppsGain;
+
+  if (st.burstTimer > 0) {
+    st.burstTimer--;
+    if (st.burstTimer <= 0) {
+      document.body.classList.remove('burst-mode');
+      document.getElementById('squatBtn').classList.remove('bursting');
+      msg("💥バルクアップ·バーストが終了した。");
+    }
+  }
+  if (st.shakeTimer > 0) st.shakeTimer--;
+
+  for(let i=0; i<3; i++){
+    if(st.skActive[i] > 0){
+      st.skActive[i]--;
+      if(st.skActive[i] <= 0){
+        st.skCD[i] = [30, 20, 40][i]; 
+        msg(`⏳ スキル [${i+1}] の効果が切れ、クールダウンに入りました。`);
+      }
+    } else if(st.skCD[i] > 0){
+      st.skCD[i]--;
+    }
+  }
+
+  if(st.pps > 0 && Math.random() < 0.08){
+    clickTrain();
+  }
+
+  if(Math.random() < 0.02){
+    if(Math.random()<0.7){randomAdventureLog('l-event')}else{generateLog(eventBases,'l-event');}
+  }
+  draw();
+} , 1000);
+
+function boss(){
+  const hp = bossHp();
+  const bi = bossInfo();
+  if(st.pow >= hp){
+    let gGain = 1;
+    if(st.bLv % 10 === 0) gGain *= 5; 
+    st.g += gGain;
+    
+    const winPrefix = pick(logPrefix);
+    const winBody = pick(bossWinBases);
+    msg(`${winPrefix} ${bi.name}に勝利！${winBody} 💎+${gGain}`, 'l-boss');
+    
+    if(st.bLv === 50 && !st.drops.gymPass) { st.drops.gymPass = true; msg("🎉レアドロップ【ジムの永久パス】を獲得！", "l-levelup"); }
+    if(st.bLv === 100 && !st.drops.weights) { st.drops.weights = true; msg("🎉レアドロップ【神の神域ウェイト】を獲得！", "l-levelup"); }
+    if(st.bLv === 150 && !st.drops.timerExt) { st.drops.timerExt = true; msg("🎉レアドロップ【時空のシェイカー】を獲得！", "l-levelup"); }
+
+    flash('討伐成功!!');
+    st.bLv++; 
+    
+    if(st.skActive[1] > 0) st.skActive[1] = 0; 
+    document.body.classList.add('shake');
+    setTimeout(()=>document.body.classList.remove('shake'), 350);
+  } else {
+    const losePrefix = pick(logPrefix);
+    const loseBody = pick(bossLoseBases);
+    msg(`${losePrefix} ${bi.name}に敗北：${loseBody} (筋力は維持された！)`, 'l-fail');
+    flash('敗北…');
+  }
+  draw();
+}
+
+function weightedPick(pool){
+  const total = pool.reduce((s,i)=>s+i.weight,0);
+  let r = Math.random()*total;
+  for(const item of pool){
+    if(r < item.weight) return item;
+    r -= item.weight;
+  }
+  return pool[pool.length-1];
+}
+
+function gacha(times){
+  let cost = gachaCost * times;
+  if(st.g < cost){
+    msg(`💎が足りない…`, 'l-fail');
+    return;
+  }
+  st.g -= cost;
+  
+  let hasSSR = false;
+  let hasUR = false;
+
+  for(let t=0; t<times; t++){
+    const item = weightedPick(gachaPool);
+    item.effect(st);
+    gachaBook[item.name] = (gachaBook[item.name]||0) + 1;
+    
+    if(item.rarity === "SSR" && item.name === "黄金の腹筋伝説") hasSSR = true;
+    if(item.rarity === "🌈") hasSSR = true; // 虹色プロテイン
+    if(item.rarity === "UR") hasUR = true;
+
+    const rarityTag = {N:"", R:"【R】", SR:"【SR!】", SSR:"★【SSR!!】★", UR:"🌌【⚡UR超越神話⚡】🌌"}[item.rarity] || "★【SSR!!】★";
+    msg(`🎰 ${rarityTag}${item.icon}${item.name} （${item.text}）`, 'l-gacha ' + rarityClass[item.rarity==='🌈'?'SSR':item.rarity]);
+  }
+
+  if(hasUR){
+    flash('🚨UR神話確定演出!!!!🚨');
+    document.body.classList.add('shake');
+    setTimeout(()=>document.body.classList.remove('shake'), 600);
+  } else if(hasSSR){
+    flash('SSR確定演出!!');
+  }
+  draw();
+}
+
+function drawGachaBook(){
+  const entries = Object.keys(gachaBook);
+  if(entries.length === 0){
+    gachaBookEl.textContent = "まだ何も出ていない…";
+    return;
+  }
+  gachaBookEl.innerHTML = entries.map(name=>{
+    if(gachaBook[name] <= 0) return "";
+    const meta = gachaPool.find(g=>g.name===name);
+    const rClass = rarityClass[meta.rarity==='🌈'?'SSR':meta.rarity];
+    return `<span class="bookItem ${rClass}">${meta.icon}×${gachaBook[name]}</span>`;
+  }).join(' ');
+}
+
+if(!st.hasOwnProperty('bLv')) st.bLv = st.lv; 
+loadGame();
+gcost.textContent = gachaCost;
+draw();
+</script>
+</body>
+</html>
